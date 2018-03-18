@@ -10,4 +10,8 @@ public static class Infra {
         _id++;
         return _id;
     }
+    public static Vector3 RandomVectorInRange(float xMin, float xMax, float yMin, float yMax) {
+        return new Vector3(UnityEngine.Random.Range(xMin, xMax), UnityEngine.Random.Range(yMin, yMax));
+    }
+
 }
