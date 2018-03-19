@@ -5,13 +5,8 @@ using UnityEngine;
 
 public class Peasant : Character {
 
-    private float CurrTime = 0;
-
-    public Color Color { get; private set; }
-
     // Use this for initialization
     void Start() {
-        RB = GetComponent<Rigidbody2D>();
         UpdateTarget();
     }
 
@@ -25,10 +20,6 @@ public class Peasant : Character {
     void Update() {
         Movement();
         SetColor();
-    }
-
-    private void SetColor() {
-        SR.color = colors[alliance];
     }
 
     public Vector3 RandomVectorInRange(float xMin, float xMax, float yMin, float yMax) {

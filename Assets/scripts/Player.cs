@@ -7,6 +7,8 @@ public class Player : MonoBehaviour {
     private List<Card> _hand = new List<Card>();
     public int id;
     public int Health;
+    public List<Character> Characters;
+    public int belivers;
 
     public List<Card> Hand {
         get {
@@ -37,6 +39,7 @@ public class Player : MonoBehaviour {
         _initialized = true;
 
         Health = 0;
+        belivers = 0;
         Hand = new List<Card>();
         id = Infra.GenerateId();
     }
@@ -48,4 +51,5 @@ public class Player : MonoBehaviour {
 
         c.FaceUp = true;
     }
+
 }
