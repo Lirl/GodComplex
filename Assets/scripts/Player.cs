@@ -9,18 +9,9 @@ public class Player : MonoBehaviour {
     public int Health;
     public List<Character> Characters;
     public int belivers;
+    public List<Spell> OnMouseRelease = new List<Spell>();
 
-    public List<Card> Hand {
-        get {
-            return _hand;
-        }
-
-        set {
-            _hand = value;
-        }
-    }
-
-    public object EventManager { get; private set; }
+    public List<Card> Hand;
 
     // Use this for initialization
     void Start() {  
@@ -50,6 +41,16 @@ public class Player : MonoBehaviour {
         }
 
         c.FaceUp = true;
+
+        // Remove played card from hand
+        // Card has no container at this point, and will return to player hand or stay at the top of pile
+        // if no important rule has failed
+        Hand.Remove(c);
+
+        EventManager.TriggerEvent("Play", new Hashtable() { { "Card", c },
+                                                            { "Pile", pile },
+                                                            { "Player", this }
+        });
     }
 
 }

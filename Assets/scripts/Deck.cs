@@ -7,7 +7,7 @@ public class Deck : MonoBehaviour {
     private List<Card> _discardPile = new List<Card>();
 
     public void Shuffle() {
-        Random rng = new Random();
+        UnityEngine.Random rng = new UnityEngine.Random();
         int n = _deck.Count;
         while (n > 1) {
             n--;
@@ -40,14 +40,14 @@ public class Deck : MonoBehaviour {
         return card;
     }
 
-    public Card AddCardAt(Card c, int index) {
-
-        // take the first card off the deck and add it to the discard pile
-        Card card = _deck[index];
-        _deck.Insert(0, card);
-
-        return card;
+    public Card top() {
+        if (_deck.Count > 0) {
+            return _deck[0];
+        }
+        return null;
     }
 
-
+    public void AddCardAt(Card c, int index) {
+        _deck.Insert(index, c);
+    }
 }
