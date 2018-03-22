@@ -9,6 +9,8 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     //not in a DropZone the card returns to the same deck
     public Transform parentReturn = null;
 
+    public bool SkipSettingParent = false;
+
     public void OnBeginDrag(PointerEventData data) {
         //Raycasts are going out from your mouse, we dont want to block them 
         //while we drag...
@@ -23,7 +25,13 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
     public void OnEndDrag(PointerEventData data) {
         //in case we didnt end in a DropZone
-        this.transform.SetParent(parentReturn);
-        GetComponent<CanvasGroup>().blocksRaycasts = true;
+        if (!SkipSettingParent) {
+            Debug.Log("Setting parent back to be " + parentReturn);
+
+            this.transform.SetParent(parentReturn);
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+        } else {
+            SkipSettingParent = false;
+        }
     }
 }

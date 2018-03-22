@@ -57,7 +57,6 @@ public class Character : MonoBehaviour {
         // Handles 
         RB.position = new Vector3(Mathf.Clamp(transform.position.x, -6.0F, 6.0F), Mathf.Clamp(transform.position.y, -4.6F, 4.6F));
 
-        //Debug.LogError("Enemy:" + transform.position);
     }
 
     public virtual Vector3 GetTargetPosition() {
@@ -85,7 +84,7 @@ public class Character : MonoBehaviour {
 
 
     public virtual void Convert() {
-        List<Character> toConvert = Infra.GetEnemiesInRange(this.transform.position, ConvertRadius);
+        List<Character> toConvert = Infra.GetPeasantsInRange(this.transform.position, ConvertRadius);
         for (int i = 0; i < toConvert.Count; i++) {
             toConvert[i].alliance = this.alliance;
         }

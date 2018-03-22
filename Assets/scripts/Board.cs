@@ -21,6 +21,8 @@ public class Board : MonoBehaviour {
 
     private bool _initialized = false;
     private double _winPersantage = 0.85; // Win condition
+    private bool _waitingForClick = false;
+    private Player _waitingForClickFromPlayer;
 
     void Start() {
         init();
@@ -30,36 +32,75 @@ public class Board : MonoBehaviour {
         init();
     }
 
+
+    private void Update() {
+        if (_waitingForClick && Input.GetMouseButtonDown(0) && CurrentPlayer().isHuman) {
+            _waitingForClick = false;
+            Debug.LogError("Got the Click!");
+            _triggerTargetSpells(Input.mousePosition);
+        }
+    }
+
+    private void _triggerTargetSpells(Vector3 pos) {
+        var player = CurrentPlayer();
+
+        Debug.LogError("Running Target Spells for player ==> " + _waitingForClickFromPlayer.id);
+        Spell spell;
+        Debug.LogError("player.TargetSpells.Count = " + _waitingForClickFromPlayer.TargetSpells.Count);
+        for (int i = 0; i < _waitingForClickFromPlayer.TargetSpells.Count; i++) {
+            try {
+                spell = _waitingForClickFromPlayer.TargetSpells[i];
+                spell.onClick(pos);
+            }   catch(Exception e) {
+                Debug.LogError("Failed execting onClick for a spell :: " + e.Message);
+            }         
+        }
+
+        // Clear spells list after execution
+        player.TargetSpells.Clear();
+        _waitingForClickFromPlayer = null;
+
+        EventManager.TriggerEvent("EndTurn");
+    }
+
     public void init() {
         if (_initialized) {
             return;
         }
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
+
         _initialized = true;
         _initDateStructure();
         _subscribeEvents();
 
         CreatePeasants();
         Invoke("CreatePriest", 3f);
+
+        EventManager.TriggerEvent("StartGame");
     }
 
-    public Player GetPlayerById(int alliance) {
-        Debug.Log("returning player " + (alliance - 1));
-        return Players[alliance - 1];
+    private void _DrawInitialCards() {
+        for (int i = 0; i < Players.Count; i++) {
+            Deck.DrawCard(Players[i], 5);
+        }
     }
 
     private void _initDateStructure() {
-
         TurnCount = 0;
-        PlayerCount = Players.Count;
 
         RuleManager = new RuleManager();
 
-        //Pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
-        //Players = GameObject.FindGameObjectsWithTag("Player").Select(x => x.GetComponent<Player>()).ToList();
-        //Deck = GameObject.FindGameObjectWithTag("Deck").GetComponent<Deck>();
+        Pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
+        Players = GameObject.FindGameObjectsWithTag("Player").Select(x => x.GetComponent<Player>()).ToList();
+        Deck = GameObject.FindGameObjectWithTag("Deck").GetComponent<Deck>();
+
+        currentPlayer = Players[0];
+
+        PlayerCount = Players.Count;
+
+        Deck.InitDeck();
 
         GameObject peasant = Resources.Load("Peasant", typeof(GameObject)) as GameObject;
         characters.Add(peasant);
@@ -68,7 +109,7 @@ public class Board : MonoBehaviour {
     }
 
     private void _subscribeEvents() {
-
+        EventManager.StartListening("StartGame", _startGame);
         EventManager.StartListening("Play", PlayHandler);
         EventManager.StartListening("EndTurn", _endTurnHandler);
         EventManager.StartListening("StartTurn", _startTurnHandler);
@@ -79,13 +120,32 @@ public class Board : MonoBehaviour {
         EventManager.StartListening("SetNextTurn", SetNextTurn);
     }
 
+    private void _startGame(Hashtable arg) {
+        _DrawInitialCards();
+        _SetPilesFirstCard();
+
+
+        EventManager.TriggerEvent("StartTurn");
+    }
+
+    private void _SetPilesFirstCard() {
+        var piles = GameObject.FindGameObjectsWithTag("Pile").Select(p => p.GetComponent<Deck>()).ToList();
+        for (int i = 0; i < piles.Count; i++) {
+            Deck.DrawCard(piles[0]);
+        }
+    }
 
     private void _gameOverHandler(Hashtable arg) {
         var player = arg["winner"];
+
+        //TODO 
+        //Show message "player x has won!"
+
+        
     }
 
-    public int CurrentPlayer() {
-        return currentPlayerIndex;
+    public Player CurrentPlayer() {
+        return currentPlayer;
     }
 
     // A player played a card
@@ -97,6 +157,7 @@ public class Board : MonoBehaviour {
         bool completeSuccess;
         var handlers = RuleManager.ValidateImportant(arg, out completeSuccess);
 
+
         // Execute all handlers for imprtant rules
         for (int i = 0; i < handlers.Count; i++) {
             handlers[i](arg);
@@ -104,45 +165,57 @@ public class Board : MonoBehaviour {
 
         if (!completeSuccess) {
             // If an important rule has failed, we should stop here
-            EventManager.TriggerEvent("EndTurn", arg);
+            Debug.Log("Important rule failed ending turn. Card alliance : " + card.Alliance + " p: " + CurrentPlayer());
+
+            // If the current player messed up and played outside of its turn,
+            // we shouldnt fire end turn
+            if(card.Alliance == CurrentPlayer().id) {
+                EventManager.TriggerEvent("EndTurn", arg);
+            }
+            
             return;
         }
 
+        // Add the card to the actual pile
+        card.MoveTo(pile);
+
+        Debug.LogError("PILE TOP CARD: " + pile.top());
+
         handlers = RuleManager.ValidateUnimportant(arg);
+
         // Execute all handlers for unimprtant rules (whether they succeed or failed)
         for (int i = 0; i < handlers.Count; i++) {
             handlers[i](arg);
         }
 
-        if (player.OnMouseRelease != null && player.OnMouseRelease.Count > 0) {
+        if (player.TargetSpells != null && player.TargetSpells.Count > 0) {
             // We are not done yet, mouse should stay put as the top card of the pile
             // while the mouse can still continue the drag to choose a point in screen to which
             // card effect will take place
 
+            Debug.LogError("Found targeted spell");
 
-            bool prepareReleaseFlag = false;
+            _waitingForClick = false;
 
             // Apply channeling animation
-            var spells = player.OnMouseRelease;
+            var spells = player.TargetSpells;
             for (int i = 0; i < spells.Count; i++) {
                 var spell = spells[i];
 
-
                 // Let Board get ready
                 if (spell.hasMouseTarget) {
-                    if (!prepareReleaseFlag) {
-                        prepareReleaseFlag = true;
-                        EventManager.TriggerEvent("PrepareForRelease", arg);
+                    if (!_waitingForClick) {
+                        _waitingForClick = true;
+                        _waitingForClickFromPlayer = player;
                     }
                 }
 
                 // What should be happening immidiately uppon card placement on pile
                 // (and no important rule failed)
                 if (spells[i].onCardPlay != null) {
-                    spells[i].onCardPlay(new Vector3(0, 0, 0), arg);
+                    spells[i].onCardPlay(new Vector3(0, 0, 0));
                 }
             }
-
         } else {
             EventManager.TriggerEvent("EndTurn", arg);
         }
@@ -150,6 +223,8 @@ public class Board : MonoBehaviour {
 
     public void _startTurnHandler(Hashtable arg) {
         // arg is null
+
+        Debug.Log("Player's turn is : " + currentPlayer.id);
 
         // Handle draw card from deck to currentPlayer
         Deck.DrawCard(currentPlayer);
@@ -170,12 +245,15 @@ public class Board : MonoBehaviour {
         // Some spell effect changed the next player
         if (nextPlayer != 0) {
             currentPlayerIndex = nextPlayer;
+            nextPlayer = 0;
         } else {
             // Set next player as normal based onb turnDirection
-            currentPlayerIndex = (currentPlayerIndex + turnDirection) % Players.Count;
+            currentPlayerIndex = Math.Max((currentPlayerIndex + turnDirection) % Players.Count, 0);
         }
 
+        
         currentPlayer = Players[currentPlayerIndex];
+        Debug.LogError("Changing current player to : " + currentPlayer.id);
 
 
         // A round is over
@@ -189,7 +267,7 @@ public class Board : MonoBehaviour {
     }
 
     private void _roundOverHandler(Hashtable arg) {
-        var peasants = GameObject.FindGameObjectsWithTag("Peasant");
+        var peasants = GameObject.FindGameObjectsWithTag("Peasants");
         var total = peasants.Count();
         bool winnerFound = false;
 
@@ -212,8 +290,6 @@ public class Board : MonoBehaviour {
         if (!winnerFound) {
             EventManager.TriggerEvent("StartTurn");
         }
-
-
     }
 
     private void SetNextTurn(Hashtable arg) {
@@ -223,10 +299,10 @@ public class Board : MonoBehaviour {
     // CREATING PEASANTS AND OTHER CREATURES
 
     private void CreatePeasants() {
+        Debug.Log("Creating Peasant");
         for (int i = 0; i < 100; i++) {
             SpawnRandom(characters[0]);
         }
-
     }
     public void SpawnRandom(GameObject gameObject) {
         //Set random location for spawn
@@ -237,6 +313,19 @@ public class Board : MonoBehaviour {
     }
 
     public void CreatePriest() {
+        Debug.Log("Creating Priest");
         SpawnRandom(characters[1]);
+    }
+
+    public Player GetPlayerById(int alliance) {
+        return Players[alliance - 1];
+    }
+
+    public GameObject CreateGameObject(GameObject resource, Vector3 vector3) {
+        return Instantiate(resource, vector3, Quaternion.identity);
+    }
+
+    public void DestroyInstance(GameObject obj) {
+        Destroy(obj);
     }
 }

@@ -14,7 +14,7 @@ public static class Infra {
         return new Vector3(UnityEngine.Random.Range(xMin, xMax), UnityEngine.Random.Range(yMin, yMax));
     }
 
-    public static List<Character> GetEnemiesInRange(Vector3 position, float radius) {
+    public static List<Character> GetPeasantsInRange(Vector3 position, float radius) {
         List<Character> res = new List<Character>();
         var current = GameObject.FindGameObjectsWithTag("Peasants");
 

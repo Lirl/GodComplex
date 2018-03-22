@@ -80,6 +80,9 @@ public class EventManager : MonoBehaviour {
 
     public static void TriggerEvent(string eventName, Hashtable eventParams = default(Hashtable)) {
         GCEvent thisEvent = null;
+
+        Debug.Log(eventName);
+
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent)) {
             thisEvent.Invoke(eventParams);
         }

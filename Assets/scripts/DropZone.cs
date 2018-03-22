@@ -12,7 +12,7 @@ public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoin
 
     //Use to get event calls about going in canvas zones
     public void OnPointerEnter(PointerEventData data) {
-        Debug.Log("OnPointerEnter");
+
     }
 
     //Use to get event calls about going out of canvas zones
@@ -33,7 +33,6 @@ public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoin
             Card c = data.pointerDrag.GetComponent<Card>();
             Deck pile = gameObject.GetComponent<Deck>();
             Board board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
-            Debug.Log("Board is " + board.name);
             Player p = board.GetPlayerById(c.Alliance);
 
             p.play(c, pile);

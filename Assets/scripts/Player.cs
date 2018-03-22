@@ -6,13 +6,17 @@ public class Player : MonoBehaviour {
     private bool _initialized;
     private List<Card> _hand = new List<Card>();
     public int id;
+
+    public GameObject UIHandContainer;
+
     public int Health;
     public List<Character> Characters;
     public int belivers;
-    public List<Spell> OnMouseRelease = new List<Spell>();
+    public List<Spell> TargetSpells = new List<Spell>();
     public Board board;
 
     public List<Card> Hand;
+    public bool isHuman = true;
 
     // Use this for initialization
     void Start() {  
@@ -33,7 +37,11 @@ public class Player : MonoBehaviour {
         Health = 0;
         belivers = 0;
         Hand = new List<Card>();
-        id = Infra.GenerateId();
+        //id = Infra.GenerateId(); id was already defined
+
+        UIHandContainer = GameObject.FindGameObjectWithTag("HandContainer" + id);
+
+        // Adding this player to board
         board.Players.Add(this);
     }
 
@@ -52,8 +60,12 @@ public class Player : MonoBehaviour {
 
         EventManager.TriggerEvent("Play", new Hashtable() { { "Card", c },
                                                             { "Pile", pile },
-                                                            { "Player", this }
+                                                            { "Player", this },
+                                                            { "Board", board }
         });
     }
 
+    public override string ToString() {
+        return "Player " + id;
+    }
 }

@@ -7,6 +7,12 @@ TagManager:
   - Peasants
   - Pile
   - Board
+  - Deck
+  - HandContainer0
+  - HandContainer1
+  - HandContainer2
+  - HandContainer3
+  - HandContainer4
   layers:
   - Default
   - TransparentFX

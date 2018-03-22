@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,10 @@ public class Deck : MonoBehaviour {
         Shuffle();
     }
 
+    public int Count() {
+        return _deck.Count;
+    }
+
     public void Shuffle() {
         UnityEngine.Random rng = new UnityEngine.Random();
         int n = _deck.Count;
@@ -35,8 +40,20 @@ public class Deck : MonoBehaviour {
 
     public Card DrawCard(Player p) {
         var card = RemoveCardAt(0); // 0 is the first index hense the top card
-        p.Hand.Add(card);
+        card.MoveTo(p);
         return card;
+    }
+
+    public Card DrawCard(Deck d) {
+        var card = RemoveCardAt(0); // 0 is the first index hense the top card
+        card.MoveTo(d);
+        return card;
+    }
+
+    internal void DrawCard(Player player, int v) {
+        for (int i = 0; i < v; i++) {
+            DrawCard(player);
+        }
     }
 
     public Card RemoveCardAt(int index) {
@@ -64,5 +81,9 @@ public class Deck : MonoBehaviour {
 
     public void AddCardAt(Card c, int index) {
         _deck.Insert(index, c);
+    }
+
+    public void Remove(Card c) {
+        _deck.Remove(c);
     }
 }
