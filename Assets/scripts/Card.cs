@@ -13,7 +13,7 @@ public class Card : MonoBehaviour {
         { "carddeck_27", "carddeck_36", "carddeck_46", "carddeck_57", "carddeck_4", "carddeck_11", "carddeck_19", "carddeck_28", "carddeck_37", "carddeck_47", "carddeck_5", "carddeck_12", "carddeck_20" }
     };
 
-    public int Owner = 0; // Id of player owning the card, where 0 is no player
+    public int Alliance = 0; // Id of player owning the card, where 0 is no player
 
     public SuitEnum Suit;
     public int Rank;
