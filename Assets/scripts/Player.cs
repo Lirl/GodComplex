@@ -10,6 +10,7 @@ public class Player : MonoBehaviour {
     public List<Character> Characters;
     public int belivers;
     public List<Spell> OnMouseRelease = new List<Spell>();
+    public Board board;
 
     public List<Card> Hand;
 
@@ -28,14 +29,16 @@ public class Player : MonoBehaviour {
         }
 
         _initialized = true;
-
+        board = FindObjectOfType<Board>();
         Health = 0;
         belivers = 0;
         Hand = new List<Card>();
         id = Infra.GenerateId();
+        board.Players.Add(this);
     }
 
     public void play(Card c, Deck pile) {
+        Debug.Log("Playing");
         if(pile == null) {
             pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
         }

@@ -9,7 +9,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     //not in a DropZone the card returns to the same deck
     public Transform parentReturn = null;
 
-
     public void OnBeginDrag(PointerEventData data) {
         //Raycasts are going out from your mouse, we dont want to block them 
         //while we drag...

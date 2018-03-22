@@ -20,7 +20,6 @@ public class Priest : Character {
             toConvert[i].alliance = this.alliance;
         }
         Invoke("Convert", 3f);
-        Debug.Log("The Priest Is Converting");
     }
 
 }

@@ -5,9 +5,6 @@ using UnityEngine.EventSystems;
 
 public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler {
 
-    public Pile pile;
-    public Card card;
-
     //TODO
     // 1 - Implement rules for droping cards on illeagal decks
     // 2 - gives different card types different drop zones
@@ -15,20 +12,33 @@ public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoin
 
     //Use to get event calls about going in canvas zones
     public void OnPointerEnter(PointerEventData data) {
-
+        Debug.Log("OnPointerEnter");
     }
 
     //Use to get event calls about going out of canvas zones
     public void OnPointerExit(PointerEventData data) {
-
     }
 
     //Use to alert card being realesed.
     public void OnDrop(PointerEventData data) {
         Draggable d = data.pointerDrag.GetComponent<Draggable>();
-        if (d != null) {
-            d.parentReturn = this.transform;
-        } 
+
+        if (d == null) {
+            return;
+        }
+
+        d.parentReturn = this.transform;
+
+        if(gameObject.tag == "Pile") {
+            Card c = data.pointerDrag.GetComponent<Card>();
+            Deck pile = gameObject.GetComponent<Deck>();
+            Board board = GameObject.FindGameObjectWithTag("Board").GetComponent<Board>();
+            Debug.Log("Board is " + board.name);
+            Player p = board.GetPlayerById(c.Alliance);
+
+            p.play(c, pile);
+        }
+
     }
 
 }

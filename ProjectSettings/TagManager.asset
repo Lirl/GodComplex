@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Peasants
+  - Pile
+  - Board
   layers:
   - Default
   - TransparentFX

@@ -28,12 +28,6 @@ public class Board : MonoBehaviour {
 
     void Awake() {
         init();
-        /*
-        CreatePeasants();
-        Invoke("CreatePriest", 3f);
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-        */
     }
 
     public void init() {
@@ -49,6 +43,11 @@ public class Board : MonoBehaviour {
 
         CreatePeasants();
         Invoke("CreatePriest", 3f);
+    }
+
+    public Player GetPlayerById(int alliance) {
+        Debug.Log("returning player " + (alliance - 1));
+        return Players[alliance - 1];
     }
 
     private void _initDateStructure() {
@@ -224,7 +223,6 @@ public class Board : MonoBehaviour {
     // CREATING PEASANTS AND OTHER CREATURES
 
     private void CreatePeasants() {
-        Debug.Log("Creating Peasant");
         for (int i = 0; i < 100; i++) {
             SpawnRandom(characters[0]);
         }
@@ -239,7 +237,6 @@ public class Board : MonoBehaviour {
     }
 
     public void CreatePriest() {
-        Debug.Log("Creating Priest");
         SpawnRandom(characters[1]);
     }
 }

@@ -6,6 +6,21 @@ public class Deck : MonoBehaviour {
     private List<Card> _deck = new List<Card>();
     private List<Card> _discardPile = new List<Card>();
 
+    public void InitDeck() {
+        GameObject card = Resources.Load("Card", typeof(GameObject)) as GameObject;
+        for (int i = 1; i < 5; i++) {
+            for (int j = 1; j < 14; j++) {
+                var instance = Instantiate(card, this.transform.position, Quaternion.identity);
+                Card c = instance.GetComponent<Card>();
+                _deck.Add(c);
+                instance.transform.parent = gameObject.transform; // e.g. this deck panel
+                c.Init();
+                c.Set((SuitEnum)i, j);
+            }
+        }
+        Shuffle();
+    }
+
     public void Shuffle() {
         UnityEngine.Random rng = new UnityEngine.Random();
         int n = _deck.Count;
