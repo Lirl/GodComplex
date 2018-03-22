@@ -28,10 +28,12 @@ public class Board : MonoBehaviour {
 
     void Awake() {
         init();
+        /*
         CreatePeasants();
         Invoke("CreatePriest", 3f);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        */
     }
 
     public void init() {
@@ -39,9 +41,14 @@ public class Board : MonoBehaviour {
             return;
         }
 
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         _initialized = true;
         _initDateStructure();
         _subscribeEvents();
+
+        CreatePeasants();
+        Invoke("CreatePriest", 3f);
     }
 
     private void _initDateStructure() {
@@ -51,9 +58,9 @@ public class Board : MonoBehaviour {
 
         RuleManager = new RuleManager();
 
-        Pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
-        Players = GameObject.FindGameObjectsWithTag("Player").Select(x => x.GetComponent<Player>()).ToList();
-        Deck = GameObject.FindGameObjectWithTag("Deck").GetComponent<Deck>();
+        //Pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
+        //Players = GameObject.FindGameObjectsWithTag("Player").Select(x => x.GetComponent<Player>()).ToList();
+        //Deck = GameObject.FindGameObjectWithTag("Deck").GetComponent<Deck>();
 
         GameObject peasant = Resources.Load("Peasant", typeof(GameObject)) as GameObject;
         characters.Add(peasant);
