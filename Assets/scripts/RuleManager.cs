@@ -147,10 +147,11 @@ public class RuleManager {
                 // things that should happen on card placement in pile
 
                 // Create Converter object
-                var sp = Resources.Load("RadiousTarget", typeof(GameObject)) as GameObject;
+                var sp = Resources.Load("RadiousCircle", typeof(GameObject)) as GameObject;
                 var board = (Board)arg["Board"];
 
                 var insta = board.CreateGameObject(sp, Input.mousePosition);
+                Debug.LogError("RadiousCircle created");
                 insta.GetComponent<RadiousTarget>().Player = player; // Set player to follow (TODO: check if human)
                 arg["prefab"] = insta;
 
