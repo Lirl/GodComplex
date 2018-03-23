@@ -9,47 +9,32 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1753275834881662}
+  m_RootGameObject: {fileID: 1748369697419834}
   m_IsPrefabParent: 1
---- !u!1 &1753275834881662
+--- !u!1 &1748369697419834
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 224864951377216814}
-  - component: {fileID: 114491389246822240}
-  - component: {fileID: 222964840536478150}
-  - component: {fileID: 114895420009970196}
+  - component: {fileID: 224612927755054328}
+  - component: {fileID: 114618851780870196}
+  - component: {fileID: 222290284911571104}
+  - component: {fileID: 114124779142729692}
   m_Layer: 0
-  m_Name: RadiusCircle
+  m_Name: SkullTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &114491389246822240
+--- !u!114 &114124779142729692
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1753275834881662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60807ca91c546fb498cf4d433cf5e83b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  location: {x: 0, y: 0, z: 0}
-  radius: 0
-  toConvert: []
-  Player: {fileID: 0}
---- !u!114 &114895420009970196
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1753275834881662}
+  m_GameObject: {fileID: 1748369697419834}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
@@ -63,7 +48,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: bd93aa17c7fb039478ef9dc2ba6d4097, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0a0557c02973d774c911bed757f0f1e1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -71,20 +56,35 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!222 &222964840536478150
+--- !u!114 &114618851780870196
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1748369697419834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60807ca91c546fb498cf4d433cf5e83b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  location: {x: 0, y: 0, z: 0}
+  radius: 0
+  toConvert: []
+  Player: {fileID: 0}
+--- !u!222 &222290284911571104
 CanvasRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1753275834881662}
---- !u!224 &224864951377216814
+  m_GameObject: {fileID: 1748369697419834}
+--- !u!224 &224612927755054328
 RectTransform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1753275834881662}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -180.7, y: -23.92, z: 0}
+  m_GameObject: {fileID: 1748369697419834}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -342.39923, y: -198.04031, z: 0}
   m_LocalScale: {x: 15, y: 15, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -92,6 +92,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -180.7, y: -23.92}
+  m_AnchoredPosition: {x: -342.39923, y: -198.04031}
   m_SizeDelta: {x: 2.5, y: 2.36}
   m_Pivot: {x: 0.5000003, y: 0.5}

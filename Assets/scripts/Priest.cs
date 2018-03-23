@@ -17,7 +17,7 @@ public class Priest : Character {
     public override void Convert() {
         List<Character> toConvert = Infra.GetPeasantsInRange(this.transform.position, ConvertRadius);
         for (int i = 0; i < toConvert.Count; i++) {
-            toConvert[i].alliance = this.alliance;
+            toConvert[i].SetAlliance(Alliance);
         }
         Invoke("Convert", 3f);
     }

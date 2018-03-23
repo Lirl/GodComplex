@@ -42,9 +42,6 @@ public class Card : MonoBehaviour {
     public void Set(SuitEnum suit, int rank) {
         Rank = rank;
         Suit = suit;
-        if (FaceUp) {
-            _image.sprite = carddeck.Where(c => c.name == cardImages[(int)suit - 1, rank - 1]).ToList()[0];
-        }
     }
 
     public override string ToString() {
@@ -107,12 +104,22 @@ public class Card : MonoBehaviour {
         }
     }
 
-    public void ToggleCard() {
-        if(FaceUp) {
-            _image.sprite = Resources.Load("carddeck_50") as Sprite;
+    public void SetCardFace(bool faceUp) {
+        if (!faceUp) {
+            var resource = carddeck.Where(c => c.name == "carddeck_50").ToList()[0];
+            _image.sprite = Instantiate(resource);
+        } else {
+            var resource = carddeck.Where(c => c.name == cardImages[(int)Suit - 1, Rank - 1]).ToList()[0];
+            _image.sprite = Instantiate(resource);
         }
-        else {
-            _image.sprite = Resources.Load(cardImages[(int)suit - 1, rank - 1]) as Sprite;
+
+        FaceUp = faceUp;
+    }
+
+    public void DestroyCard() {
+        if(gameObject) {
+            gameObject.transform.parent = null;
+            Destroy(gameObject);
         }
     }
 }

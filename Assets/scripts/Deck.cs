@@ -6,8 +6,11 @@ using UnityEngine;
 public class Deck : MonoBehaviour {
     private List<Card> _deck = new List<Card>();
     private List<Card> _discardPile = new List<Card>();
+    public bool IsPile = false;
 
     public void InitDeck() {
+        _deck.Clear();
+        _discardPile.Clear();
         GameObject card = Resources.Load("Card", typeof(GameObject)) as GameObject;
         for (int i = 1; i < 5; i++) {
             for (int j = 1; j < 14; j++) {
@@ -20,6 +23,10 @@ public class Deck : MonoBehaviour {
             }
         }
         Shuffle();
+    }
+
+    public void Clear() {
+        _deck.Clear();
     }
 
     public int Count() {
@@ -41,12 +48,18 @@ public class Deck : MonoBehaviour {
     public Card DrawCard(Player p) {
         var card = RemoveCardAt(0); // 0 is the first index hense the top card
         card.MoveTo(p);
+        if(p.isHuman) {
+            card.SetCardFace(true);
+        }
         return card;
     }
 
     public Card DrawCard(Deck d) {
         var card = RemoveCardAt(0); // 0 is the first index hense the top card
         card.MoveTo(d);
+        if (d.IsPile) {
+            card.SetCardFace(true);
+        }
         return card;
     }
 

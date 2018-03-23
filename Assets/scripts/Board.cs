@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Board : MonoBehaviour {
     public Deck Deck;
     public Deck Pile;
     public List<Player> Players = new List<Player>();
     public List<GameObject> characters;
+    public GameObject ChoosePanel;
+
 
     public int TurnCount { get; private set; }
     public int PlayerCount { get; private set; }
@@ -20,9 +23,11 @@ public class Board : MonoBehaviour {
     private Player currentPlayer;
 
     private bool _initialized = false;
-    private double _winPersantage = 0.85; // Win condition
+    private double _winPersantage = 0.12; // 0.55; // Win condition
     private bool _waitingForClick = false;
     private Player _waitingForClickFromPlayer;
+    private bool _firstInit = true;
+
 
     void Start() {
         init();
@@ -74,9 +79,42 @@ public class Board : MonoBehaviour {
         _subscribeEvents();
 
         CreatePeasants();
-        Invoke("CreatePriest", 3f);
+        //Invoke("CreatePriest", 3f);
 
         EventManager.TriggerEvent("StartGame");
+    }
+
+    public void ResetGame() {
+
+        ClearAllCharacters();
+        
+        Deck.InitDeck();
+
+        // Clear player hands
+        // DestroyCard removes the card UI as well
+        for (int i = 0; i < Players.Count; i++) {
+            Players[i].Hand.ForEach(x => x.DestroyCard());
+        }
+
+        // Remove pile cards
+        Pile.Clear();
+
+        // Set portion to 0%
+        for (int i = 0; i < Players.Count; i++) {
+            EventManager.TriggerEvent("PeasantPortion", new Hashtable { { "Player", Players[i] }, { "Portion", 0 } });
+        }
+
+        // To avoid any case we are out of rules for next round winner
+        RuleManager.RevertExtraRules();
+
+        CreatePeasants();
+
+        EventManager.TriggerEvent("StartGame");
+    }
+
+    public void ClearAllCharacters() {
+        Debug.LogError("Characters that will be dead in a sec: " + FindObjectsOfType<Character>().ToList().Count);
+        GameObject.FindObjectsOfType<Character>().ToList().ForEach(x => x.DestroyCharacter());
     }
 
     private void _DrawInitialCards() {
@@ -89,8 +127,10 @@ public class Board : MonoBehaviour {
         TurnCount = 0;
 
         RuleManager = new RuleManager();
-
+        
         Pile = GameObject.FindGameObjectWithTag("Pile").GetComponent<Deck>();
+        Pile.IsPile = true; // letting this Deck object be aware its a pile not a deck
+
         Players = GameObject.FindGameObjectsWithTag("Player").Select(x => x.GetComponent<Player>()).ToList();
         Deck = GameObject.FindGameObjectWithTag("Deck").GetComponent<Deck>();
 
@@ -104,6 +144,7 @@ public class Board : MonoBehaviour {
         characters.Add(peasant);
         GameObject priest = Resources.Load("Priest", typeof(GameObject)) as GameObject;
         characters.Add(priest);
+            
     }
 
     private void _subscribeEvents() {
@@ -114,6 +155,8 @@ public class Board : MonoBehaviour {
         EventManager.StartListening("RoundOver", _roundOverHandler);
         EventManager.StartListening("GameOver", _gameOverHandler);
 
+        EventManager.StartListening("ExtraRuleChosen", _extraRuleChosenHandler);
+
         // Enable changing which player would be next
         EventManager.StartListening("SetNextTurn", SetNextTurn);
     }
@@ -121,7 +164,6 @@ public class Board : MonoBehaviour {
     private void _startGame(Hashtable arg) {
         _DrawInitialCards();
         _SetPilesFirstCard();
-
 
         EventManager.TriggerEvent("StartTurn");
     }
@@ -134,12 +176,34 @@ public class Board : MonoBehaviour {
     }
 
     private void _gameOverHandler(Hashtable arg) {
-        var player = arg["winner"];
+        var player = (Player) arg["winner"];
 
-        //TODO 
-        //Show message "player x has won!"
+        EventManager.TriggerEvent("ShowText", new Hashtable() { { "Text", "Player " + player.id + " won!" }, { "Duration", 1f } });
 
-        
+        _discoverExtraRules();
+    }
+
+    private void _discoverExtraRules() {
+
+        var ruleUIs = Infra.FindComponentsInChildWithTag<RuleUI>(ChoosePanel, "RuleUI");
+        for (int i = 0; i < ruleUIs.Count; i++) {
+            var rule = RuleManager.ChooseRandomExtraRule();
+            ruleUIs[i].GetComponent<RuleUI>().SetRule(rule);
+        }
+
+        ChoosePanel.SetActive(true); // Show actual panel
+    }
+
+    private void _extraRuleChosenHandler(Hashtable arg) {
+        Rule r = (Rule)arg["Rule"];
+
+        // Adding chosen rule
+        RuleManager.Rules.Add(r);
+
+        GameObject.Find("ChooseRule").SetActive(false);
+
+        // Starting over
+        ResetGame();
     }
 
     public Player CurrentPlayer() {
@@ -231,6 +295,8 @@ public class Board : MonoBehaviour {
         // (currently doesnt have a handler)
         // Like temple creating believers or something
         EventManager.TriggerEvent("OnTurnStart");
+
+        EventManager.TriggerEvent("ShowText", new Hashtable() { { "Text", "Player " + currentPlayer.id + " turn" }, { "Duration", 1f } });
     }
 
 
@@ -245,8 +311,9 @@ public class Board : MonoBehaviour {
             currentPlayerIndex = Math.Max((currentPlayerIndex + turnDirection) % Players.Count, 0);
         }
 
-        
         currentPlayer = Players[currentPlayerIndex];
+
+        _showPeasantsPortion();
 
         // A round is over
         if (TurnCount % PlayerCount == 0) {
@@ -258,6 +325,20 @@ public class Board : MonoBehaviour {
         }
     }
 
+    private void _showPeasantsPortion() {
+        var peasants = GameObject.FindGameObjectsWithTag("Peasants");
+        var total = peasants.Count();
+
+        Player player;
+        for (int i = 0; i < Players.Count; i++) {
+            player = Players[i];
+            var playerId = player.id;
+            double portion = (double)peasants.Select(p => p.GetComponent<Peasant>()).Where(c => c.Alliance == playerId).Count() / total;
+
+            EventManager.TriggerEvent("PeasantPortion", new Hashtable { { "Player", player }, { "Portion", Math.Truncate(portion * 100) / 100 } });
+        }
+    }
+
     private void _roundOverHandler(Hashtable arg) {
         var peasants = GameObject.FindGameObjectsWithTag("Peasants");
         var total = peasants.Count();
@@ -266,15 +347,11 @@ public class Board : MonoBehaviour {
         // WIN CONDITION!
         // If a player has more than winPersantage% ownership on all peasant he/she win the game
 
-        Debug.LogError("Checking game over:");
-
         Player player;
         for (int i = 0; i < Players.Count; i++) {
             player = Players[i];
             var playerId = player.id;
-            double portion = peasants.Select(p => p.GetComponent<Character>()).Where(c => c.alliance == playerId).Count() / total;
-
-            Debug.LogError("Player " + player.id + " portion is : " + portion);
+            double portion = (double) peasants.Select(p => p.GetComponent<Peasant>()).Where(c => c.Alliance == playerId).Count() / total;
 
             if (portion > _winPersantage) {
                 EventManager.TriggerEvent("GameOver", new Hashtable() { { "winner", player } });
@@ -301,10 +378,11 @@ public class Board : MonoBehaviour {
             SpawnRandom(characters[0]);
         }
     }
-    public void SpawnRandom(GameObject gameObject) {
+
+    public GameObject SpawnRandom(GameObject gameObject) {
         //Set random location for spawn
         Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(UnityEngine.Random.Range(0, Screen.width), UnityEngine.Random.Range(0, Screen.height), 10));
-        Instantiate(gameObject, screenPosition, Quaternion.identity);
+        return Instantiate(gameObject, screenPosition, Quaternion.identity);
     }
 
     public void CreatePriest() {
@@ -317,7 +395,12 @@ public class Board : MonoBehaviour {
     }
 
     public GameObject CreateGameObject(GameObject resource, Vector3 vector3) {
-        return Instantiate(resource, vector3, Quaternion.identity);
+        try {
+            return Instantiate(resource, vector3, Quaternion.identity);
+        } catch(Exception e) {
+            Debug.LogError("Could not instanciate resource " + (resource != null ? resource.name : "(null)"));
+        }
+        return null;        
     }
 
     public void DestroyInstance(GameObject obj) {

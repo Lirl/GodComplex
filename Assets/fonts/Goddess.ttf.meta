@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 1bbffaab9b8eb894a990ae6baa27ad06
+timeCreated: 1521809963
+licenseType: Free
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Goddess
+  fontNames:
+  - Goddess
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

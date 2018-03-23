@@ -38,4 +38,24 @@ public static class Infra {
         return res;
     }
 
+    public static T FindComponentInChildWithTag<T>(GameObject parent, string tag) where T : Component {
+        Transform t = parent.transform;
+        foreach (Transform tr in t) {
+            if (tr.tag == tag) {
+                return tr.GetComponent<T>();
+            }
+        }
+        return null;
+    }
+
+    public static List<T> FindComponentsInChildWithTag<T>(GameObject parent, string tag) where T : Component {
+        Transform t = parent.transform;
+        List<T> res = new List<T>();
+        foreach (Transform tr in t) {
+            if (tr.tag == tag) {
+                res.Add(tr.GetComponent<T>());
+            }
+        }
+        return res;
+    }
 }

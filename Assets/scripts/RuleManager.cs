@@ -8,9 +8,13 @@ using UnityEngine;
 public class RuleManager {
     public List<Rule> Rules = new List<Rule>();
 
+    public List<Rule> ExtraRules = new List<Rule>();
+
+    public List<Rule> CopyExtraRules;
 
     public RuleManager() {
         _setBasicRules();
+        _setExtraRules();
     }
 
     public List<RuleHandler> ValidateImportant(Hashtable arg, out bool completeSuccess) {
@@ -108,8 +112,6 @@ public class RuleManager {
             var player = (Player)hash["Player"];
             var card = (Card)hash["Card"]; // Card chosen to be played
 
-            Debug.Log("RUNNING ON FAILURE NOT YOUR TURN " + card + " p: " + player);
-
             // Move card back to player's hand
             card.MoveBack();
 
@@ -134,12 +136,12 @@ public class RuleManager {
         Rules.Add(new Rule(delegate (Hashtable hash) {
 
             var card = (Card)hash["Card"];
-            return true || (card.Rank % 3 == 0);
+            return (card.Rank % 3 == 0);
 
         }, delegate (Hashtable arg) {
             var player = (Player)arg["Player"];
             var spell = new Spell();
-            
+
             spell.onCardPlay = delegate (Vector3 pos) {
                 Debug.LogError("onCardPlay!");
 
@@ -147,15 +149,17 @@ public class RuleManager {
                 // things that should happen on card placement in pile
 
                 // Create Converter object
-                var sp = Resources.Load("RadiousCircle", typeof(GameObject)) as GameObject;
+                var sp = Resources.Load("RadiusCircle", typeof(GameObject)) as GameObject;
+
                 var board = (Board)arg["Board"];
 
                 var insta = board.CreateGameObject(sp, Input.mousePosition);
-                Debug.LogError("RadiousCircle created");
-                insta.GetComponent<RadiousTarget>().Player = player; // Set player to follow (TODO: check if human)
+                Debug.LogError("RadiusCircle created");
+                sp.GetComponent<RadiousTarget>().Player = player; // Set player to follow (TODO: check if human)
                 arg["prefab"] = insta;
 
-                insta.transform.parent = Camera.main.transform;
+                insta.transform.parent = GameObject.FindGameObjectWithTag("Canvas").transform;
+                //EventManager.TriggerEvent("ShowText", new Hashtable() { { "Text", "Convert Peasants To Belivers!" }, { "Duration", 1f } });
             };
 
             spell.onClick = delegate (Vector3 pos) {
@@ -169,7 +173,7 @@ public class RuleManager {
                 var location = new Vector3(Camera.main.ScreenToWorldPoint(pos).x,
                        Camera.main.ScreenToWorldPoint(pos).y, 0);
 
-                var toConvert = Infra.GetPeasantsInRange(location, (float) 3);
+                var toConvert = Infra.GetPeasantsInRange(location, (float)1);
                 foreach (Character c in toConvert) {
                     c.SetAlliance(player.id);
                 }
@@ -185,10 +189,139 @@ public class RuleManager {
         }, delegate (Hashtable hash) {
             // Do nothing
         }));
-
     }
 
+    private void _setExtraRules() {
 
+        // Any Jack Queen or King
+        // ==> summon priests
+        ExtraRules.Add(new Rule(delegate (Hashtable hash) {
 
+            var playedCard = (Card)hash["Card"];
+            return (playedCard.Rank > 10);
 
+        }, delegate (Hashtable hash) {
+            var playedCard = (Card)hash["Card"];
+            var board = (Board)hash["Board"];
+            var player = (Player)hash["Player"];
+            var priest = Resources.Load("Priest", typeof(GameObject)) as GameObject;
+
+            for (int i = 0; i < playedCard.Rank - 10; i++) {
+
+                var instance = board.SpawnRandom(priest);
+                var character = instance.GetComponent<Character>();
+                character.init();
+                character.SetAlliance(player.id);
+            }
+
+        }, delegate (Hashtable hash) {
+
+        }, false, "I am here to Serve", "Any Jack, Queen or King : Summon a priest that converts peasants near him to be under your domain", "rul2"));
+
+        ExtraRules.Add(new Rule(delegate (Hashtable hash) {
+
+            var playedCard = (Card)hash["Card"];
+            return (playedCard.Rank < 5 && playedCard.Suit == SuitEnum.Spades);
+
+        }, delegate (Hashtable arg) {
+
+            var player = (Player)arg["Player"];
+            var spell = new Spell();
+
+            spell.onCardPlay = delegate (Vector3 pos) {
+                // Create Converter object
+                var board = (Board)arg["Board"];
+
+                Debug.LogError("Attempting Skill circle created");
+                var sp = Resources.Load("SkullTarget", typeof(GameObject)) as GameObject;
+                
+                var insta = board.CreateGameObject(sp, Input.mousePosition);
+                Debug.LogError("Skill circle  created");
+
+                sp.GetComponent<RadiousTarget>().Player = player; // Set player to follow (TODO: check if human)
+                arg["prefab"] = insta;
+
+                insta.transform.parent = GameObject.FindGameObjectWithTag("Canvas").transform;
+                //EventManager.TriggerEvent("ShowText", new Hashtable() { { "Text", "Convert Peasants To Belivers!" }, { "Duration", 1f } });
+            };
+            spell.onClick = delegate (Vector3 pos) {
+
+                var board = (Board)arg["Board"];
+
+                var location = new Vector3(Camera.main.ScreenToWorldPoint(pos).x,
+                       Camera.main.ScreenToWorldPoint(pos).y, 0);
+
+                var toKill = Infra.GetPeasantsInRange(location, (float)1);
+                foreach (Character c in toKill) {
+                    board.DestroyInstance(c.gameObject);
+                }
+
+                // Destroying skull cursor
+                board.DestroyInstance((GameObject)arg["prefab"]);
+            };
+
+            spell.hasMouseTarget = true;
+
+        }, delegate (Hashtable hash) {
+
+        }, false, "Oppression", "Spades 1-4 : Kills peasants in chosen radius", "rul3"));
+
+        ExtraRules.Add(new Rule(delegate (Hashtable hash) {
+
+            var playedCard = (Card)hash["Card"];
+            return (playedCard.Rank == 13 && playedCard.Suit == SuitEnum.Diamonds);
+
+        }, delegate (Hashtable arg) {
+
+            var player = (Player)arg["Player"];
+            var spell = new Spell();
+
+            spell.onCardPlay = delegate (Vector3 pos) {
+                // Create Converter object
+                var sp = Resources.Load("SkullTarget", typeof(GameObject)) as GameObject;
+
+                var board = (Board)arg["Board"];
+
+                var insta = board.CreateGameObject(sp, Input.mousePosition);
+                sp.GetComponent<RadiousTarget>().Player = player; // Set player to follow (TODO: check if human)
+                arg["prefab"] = insta;
+
+                insta.transform.parent = GameObject.FindGameObjectWithTag("Canvas").transform;
+                //EventManager.TriggerEvent("ShowText", new Hashtable() { { "Text", "Convert Peasants To Belivers!" }, { "Duration", 1f } });
+            };
+            spell.onClick = delegate (Vector3 pos) {
+
+                var board = (Board)arg["Board"];
+
+                var location = new Vector3(Camera.main.ScreenToWorldPoint(pos).x,
+                       Camera.main.ScreenToWorldPoint(pos).y, 0);
+
+                var toKill = Infra.GetPeasantsInRange(location, (float)1);
+                foreach (Character c in toKill) {
+                    board.DestroyInstance(c.gameObject);
+                }
+
+                // Destroying skull cursor
+                board.DestroyInstance((GameObject)arg["prefab"]);
+            };
+
+            spell.hasMouseTarget = true;
+            player.TargetSpells.Add(spell);
+
+        }, delegate (Hashtable hash) {
+
+        }, false, "Armagedon", "King of Diamonds : Meteor shower", "rul1"));
+
+        CopyExtraRules = new List<Rule>(ExtraRules);
+    }
+
+    public void RevertExtraRules() {
+        ExtraRules = CopyExtraRules;
+    }
+
+    public Rule ChooseRandomExtraRule() {
+        var rule = ExtraRules.Shuffle().PickRandom(1).First();
+        ExtraRules.Remove(rule);
+        return rule;
+    }
 }

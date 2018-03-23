@@ -6,7 +6,7 @@ public class Character : MonoBehaviour {
 
     public float speed;
     public float ConvertRadius;
-    public int alliance = 0;
+    public int Alliance = 0;
     public Vector3 target;
     private bool _initialized;
 
@@ -16,6 +16,7 @@ public class Character : MonoBehaviour {
     public Collider2D COL;
 
     public Color Color { get; private set; }
+    public bool Paused = false;
 
     // Use this for initialization
     void Start () {
@@ -51,43 +52,48 @@ public class Character : MonoBehaviour {
     }
 
     public virtual void Movement() {
+        if(Paused) {
+            return;
+        }
+
         RB.velocity -= RB.velocity;
         RB.AddForce((GetTargetPosition() - transform.position).normalized * speed * Time.smoothDeltaTime);
 
         // Handles 
         RB.position = new Vector3(Mathf.Clamp(transform.position.x, -6.0F, 6.0F), Mathf.Clamp(transform.position.y, -4.6F, 4.6F));
-
     }
 
     public virtual Vector3 GetTargetPosition() {
         return target;
     }
     public void SetColor() {
-        SR.color = colors[alliance];
+        SR.color = colors[Alliance];
     }
 
     public void SetAlliance(int player) {
-        alliance = player;
+        Alliance = player;
         SetColor();
     }
 
     public virtual Vector3 RandomVectorInRange() {
         return transform.position;
     }
-    
 
     public void ChangeAlliance(Player p1, Player p2) {
-        alliance = p2.id;
+        Alliance = p2.id;
         p1.Characters.Remove(this);
         p2.Characters.Add(this);
     }
 
-
     public virtual void Convert() {
         List<Character> toConvert = Infra.GetPeasantsInRange(this.transform.position, ConvertRadius);
         for (int i = 0; i < toConvert.Count; i++) {
-            toConvert[i].alliance = this.alliance;
+            toConvert[i].Alliance = this.Alliance;
         }
+    }
+
+    public void DestroyCharacter() {
+        Destroy(gameObject);
     }
 
 }
