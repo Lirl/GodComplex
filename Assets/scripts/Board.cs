@@ -36,7 +36,6 @@ public class Board : MonoBehaviour {
     private void Update() {
         if (_waitingForClick && Input.GetMouseButtonDown(0) && CurrentPlayer().isHuman) {
             _waitingForClick = false;
-            Debug.LogError("Got the Click!");
             _triggerTargetSpells(Input.mousePosition);
         }
     }
@@ -44,9 +43,8 @@ public class Board : MonoBehaviour {
     private void _triggerTargetSpells(Vector3 pos) {
         var player = CurrentPlayer();
 
-        Debug.LogError("Running Target Spells for player ==> " + _waitingForClickFromPlayer.id);
+        Debug.LogError("Running Target Spells for player ==> " + _waitingForClickFromPlayer.id + " count: " + +_waitingForClickFromPlayer.TargetSpells.Count);
         Spell spell;
-        Debug.LogError("player.TargetSpells.Count = " + _waitingForClickFromPlayer.TargetSpells.Count);
         for (int i = 0; i < _waitingForClickFromPlayer.TargetSpells.Count; i++) {
             try {
                 spell = _waitingForClickFromPlayer.TargetSpells[i];
@@ -179,8 +177,6 @@ public class Board : MonoBehaviour {
         // Add the card to the actual pile
         card.MoveTo(pile);
 
-        Debug.LogError("PILE TOP CARD: " + pile.top());
-
         handlers = RuleManager.ValidateUnimportant(arg);
 
         // Execute all handlers for unimprtant rules (whether they succeed or failed)
@@ -192,8 +188,6 @@ public class Board : MonoBehaviour {
             // We are not done yet, mouse should stay put as the top card of the pile
             // while the mouse can still continue the drag to choose a point in screen to which
             // card effect will take place
-
-            Debug.LogError("Found targeted spell");
 
             _waitingForClick = false;
 
@@ -253,8 +247,6 @@ public class Board : MonoBehaviour {
 
         
         currentPlayer = Players[currentPlayerIndex];
-        Debug.LogError("Changing current player to : " + currentPlayer.id);
-
 
         // A round is over
         if (TurnCount % PlayerCount == 0) {
@@ -274,11 +266,16 @@ public class Board : MonoBehaviour {
         // WIN CONDITION!
         // If a player has more than winPersantage% ownership on all peasant he/she win the game
 
+        Debug.LogError("Checking game over:");
+
         Player player;
         for (int i = 0; i < Players.Count; i++) {
             player = Players[i];
             var playerId = player.id;
             double portion = peasants.Select(p => p.GetComponent<Character>()).Where(c => c.alliance == playerId).Count() / total;
+
+            Debug.LogError("Player " + player.id + " portion is : " + portion);
+
             if (portion > _winPersantage) {
                 EventManager.TriggerEvent("GameOver", new Hashtable() { { "winner", player } });
                 winnerFound = true;
@@ -308,8 +305,6 @@ public class Board : MonoBehaviour {
         //Set random location for spawn
         Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(UnityEngine.Random.Range(0, Screen.width), UnityEngine.Random.Range(0, Screen.height), 10));
         Instantiate(gameObject, screenPosition, Quaternion.identity);
-        
-        //Debug.Log("Creating character");
     }
 
     public void CreatePriest() {

@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4300549621127884}
   - component: {fileID: 212675887671730262}
+  - component: {fileID: 114834844529109080}
   m_Layer: 0
   m_Name: RadiusCircle
   m_TagString: Untagged
@@ -40,6 +41,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114834844529109080
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1140786402883794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60807ca91c546fb498cf4d433cf5e83b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  location: {x: 0, y: 0, z: 0}
+  radius: 0
+  toConvert: []
+  Player: {fileID: 0}
 --- !u!212 &212675887671730262
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -21,14 +21,12 @@ public class Rule {
         OnSuccess = success;
         OnFailure = failure;
     }
-    public Rule(Predicate<Hashtable> pre, RuleHandler success, RuleHandler failure, bool important) {
-        Predicate = pre;
-        OnSuccess = success;
-        OnFailure = failure;
+
+    public Rule(Predicate<Hashtable> pre, RuleHandler success, RuleHandler failure, bool important) : this(pre, success, failure) {
         this.important = important;
     }
 
-    public Rule(Predicate<Hashtable> pre, RuleHandler success, RuleHandler failure, bool important, string name, string description, string imagePath) : this(pre, success, failure) {
+    public Rule(Predicate<Hashtable> pre, RuleHandler success, RuleHandler failure, bool important, string name, string description, string imagePath) : this(pre, success, failure, important) {
         Description = description;
         Name = name;
         Image = imagePath;

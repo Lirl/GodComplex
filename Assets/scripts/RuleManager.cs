@@ -130,7 +130,7 @@ public class RuleManager {
         }));*/
 
 
-        //Converter reciever, on Diamond 3, 6, 9 or queen
+        //Converter reciever, on Heart 3, 6, 9 or queen
         Rules.Add(new Rule(delegate (Hashtable hash) {
 
             var card = (Card)hash["Card"];
@@ -169,7 +169,7 @@ public class RuleManager {
                 var location = new Vector3(Camera.main.ScreenToWorldPoint(pos).x,
                        Camera.main.ScreenToWorldPoint(pos).y, 0);
 
-                var toConvert = Infra.GetPeasantsInRange(location, (float) 0.5);
+                var toConvert = Infra.GetPeasantsInRange(location, (float) 3);
                 foreach (Character c in toConvert) {
                     c.SetAlliance(player.id);
                 }

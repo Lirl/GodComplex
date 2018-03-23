@@ -60,7 +60,7 @@ public class Card : MonoBehaviour {
         DetachFromContainer();
 
         // Change alliance of this card
-        Debug.Log("Setting card " + this + " to alliance " + p.id);
+        //Debug.Log("Setting card " + this + " to alliance " + p.id);
         Alliance = p.id;
         Container = p;
 
@@ -94,7 +94,6 @@ public class Card : MonoBehaviour {
     }
 
     public void MoveBack() {
-        Debug.Log("MOVE BACK");
         if (Container != null) {
             MoveTo(Container);
         } 
@@ -102,20 +101,18 @@ public class Card : MonoBehaviour {
 
     private void MoveTo(object container) {
         if(container.GetType() == typeof(Deck)) {
-            Debug.Log("Container is a Deck");
             MoveTo((Deck)container);
         } else if (container.GetType() == typeof(Player)) {
-            Debug.Log("Container is a Player : " + ((Player)container));
             MoveTo((Player)container);
         }
     }
 
-    /*public void ToggleCard() {
+    public void ToggleCard() {
         if(FaceUp) {
             _image.sprite = Resources.Load("carddeck_50") as Sprite;
         }
         else {
             _image.sprite = Resources.Load(cardImages[(int)suit - 1, rank - 1]) as Sprite;
         }
-    }*/
+    }
 }
